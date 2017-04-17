@@ -1,47 +1,52 @@
-#hello
-import os 
+import threading
+from queue import Queue 
+from spider import Spider
+from domain import *
+from general import *
+import pdb
 
-def create_project_dir(directory):
-	if not os.path.exists(directory):
-		print('Creating project' + directory)
-		os.makedirs(directory)
+PROJECT_NAME = 'thenewboston'
+HOMEPAGE = 'https://thenewboston.com'
+DOMAIN_NAME = get_domain_name(HOMEPAGE)
+QUEUE_FILE = PROJECT_NAME + '/queue.txt'
+CRAWLED_FILE = PROJECT_NAME + '/crawled.txt'
+NUMBER_OF_THREADS = 8
+queue = Queue()
+Spider(PROJECT_NAME, HOMEPAGE, DOMAIN_NAME)
 
-#crate queue and crawled files
-def create_data_files(project_name, base_url):
-	queue = project_name + 'queue.txt'
-	crawled = project_name + 'crawled.txt'
-	if not os.path.isfile(queue):
-		write_file(queue, base_url)
-	if not os.path.isfile(crawled):
-		write_file(crawled, '')
-
-
-def write_file(path, data):
-	f = open(path, 'w')
-	f.write(data)
-	f.close()
-
-
-def append_to_file(path, data):
-	with open(path, 'a') as file:
-		file.write(data + '/n')
-	
-def delete_file_contents(path):
-	with oepn(path, 'w'):
-		pass
+ 
+#creating threads
+def create_workers():
+	for _ in range(NUMBER_OF_THREADS):
+		t = threading.Thread(target=work)
+		t.daemon = True
+		t.start()
 
 
-def file_to_set(file_name):
-	results = set()
-	with open(file_name, 'rt') as f:
-		for line in f:
-			results.add(line.replace('\n', ''))
-	return results
-
-def set_to_file(urls, path):
-	delete_file_contents(path)
-	for url in sorted(urls):
-		append_to_file(path, url)
+def work():
+	while True:
+		url = queue.get()
+		Spider.crawl_page(threading.current_thread().name, url)
+		queue.task_done()
 
 
-		
+
+def create_jobs():
+	for link in file_to_set(QUEUE_FILE):
+		queue.put(link)
+	queue.join()
+	crawl()
+
+#check tasks
+def crawl():
+	queued_links = file_to_set(QUEUE_FILE)
+	if len(queued_links) > 0:
+		print(str(len(queued_links)) + ' links in the queue')
+		create_jobs()
+
+
+
+# if __name__ == "__main__":
+	create_workers()
+	crawl()
+
