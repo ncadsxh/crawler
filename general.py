@@ -24,7 +24,7 @@ def write_file(path, data):
 
 def append_to_file(path, data):
 	with open(path, 'a') as file:
-		file.write(data + '/n')
+		file.write(data + '\n')
 	
 def delete_file_contents(path):
 	with open(path, 'w'):

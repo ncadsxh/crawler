@@ -4,9 +4,11 @@ from spider import Spider
 from domain import *
 from general import *
 import pdb
+import lxml
 
-PROJECT_NAME = 'thenewboston'
-HOMEPAGE = 'https://thenewboston.com'
+
+PROJECT_NAME = 'nba'
+HOMEPAGE = 'http://stats.nba.com/'
 DOMAIN_NAME = get_domain_name(HOMEPAGE)
 QUEUE_FILE = PROJECT_NAME + '/queue.txt'
 CRAWLED_FILE = PROJECT_NAME + '/crawled.txt'
@@ -46,7 +48,7 @@ def crawl():
 
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 	create_workers()
 	crawl()
 
